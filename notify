@@ -1,0 +1,54 @@
+const imageUrls = [""];
+const CONSTANTS = {
+    WEBHOOK_NAME: 'NyricX Hub',
+    USER_NAME: 'NyricX Hub - Notify | Blox Fruits',
+    ICON_OWNER: 'https://images-ext-1.discordapp.net/external/yTrHiuAfYiGGr2Om5bbTbQabobkFqPBXZw3Mf9jU_wE/%3Fsize%3D4096/https/cdn.discordapp.com/avatars/1363088197277585488/75c1515cc8a90251d5240c4afdd6a6aa.png?format=webp&quality=lossless&width=599&height=599'
+};
+
+// Map tá»‘i giáº£n
+const THEME_MAP = new Map([
+    ['1365691786756096062', { n: "FULL MOON", u: 'https://discord.com/api/webhooks/1369639117255872522/nECxodMfDeI7fOuk3RCdmNFSjtW4KaS0sSPNje1r4F54bkX2LEutduQhHUzI_Un-Dnl3' }],
+    ['', { n: "MIRAGE ISLAND", u: '' }],
+    ['', { n: "HAKI LEGENDARY", u: '' }],
+    ['', { n: "SWORD LEGENDARY", u: '' }],
+    ['', { n: "BOSS RAID", u: '' }],
+    ['', { n: "KITSUNE", u: '' }],
+]);
+
+const { Client } = require('discord.js-selfbot-v13');
+const DiscordBot = new Client();
+const https = require('https');
+
+const PAYLOAD = {
+    content: null,
+    embeds: [{ color: 0x4287f5, description: "", author: { name: CONSTANTS.WEBHOOK_NAME }, footer: { text: `Make By: ${CONSTANTS.USER_NAME}`, icon_url: CONSTANTS.ICON_OWNER } }],
+    attachments: []
+};
+
+function sendWebhook(theme, fields) {
+    PAYLOAD.embeds[0].title = theme.n;
+    PAYLOAD.embeds[0].fields = fields;
+    PAYLOAD.embeds[0].image = { url: imageUrls[0] };
+    PAYLOAD.embeds[0].timestamp = new Date().toISOString();
+
+    const data = JSON.stringify(PAYLOAD);
+    const req = https.request(theme.u, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+    }, (res) => {
+        if (res.statusCode === 204) console.log('\x1b[31m[SYSTEM]\x1b[32mCheck Speed : ', theme.n);
+    });
+
+    req.on('error', (e) => console.error('\x1b[31m[SYSTEM]\x1b[32mError :', e.message));
+    req.write(data);
+    req.end();
+}
+
+// Event handlers siÃªu nháº¹
+DiscordBot.once('ready', () => console.log('Console - Start Webhook'));
+DiscordBot.on('messageCreate', (m) => {
+    const t = THEME_MAP.get(m.channelId);
+    if (t && m.embeds[0]) sendWebhook(t, m.embeds[0].fields);
+});
+
+DiscordBot.login('MTM1MjMxMDM1MDQ2MDA5MjUwNw.G2-7C6._gS2Rag_mJufSFogwkMiJKO7toFs1GrVaUC2WE');
